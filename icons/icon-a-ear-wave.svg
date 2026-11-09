@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img">
+  <title>方案 A 耳朵与声波</title>
+  <rect width="512" height="512" rx="112" fill="#143B66"/>
+  <path d="M 300 128 C 226 108, 158 158, 158 244 C 158 300, 178 344, 214 378 C 236 398, 246 418, 246 446" fill="none" stroke="#FFFFFF" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M 272 200 C 234 192, 210 218, 210 252 C 210 278, 222 296, 240 310" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"/>
+  <path d="M 348 196 C 376 224, 376 288, 348 316" fill="none" stroke="#FFB74D" stroke-width="20" stroke-linecap="round"/>
+  <path d="M 392 164 C 436 210, 436 302, 392 348" fill="none" stroke="#FFB74D" stroke-width="20" stroke-linecap="round"/>
+  <path d="M 434 132 C 490 190, 490 322, 434 380" fill="none" stroke="#FFB74D" stroke-width="20" stroke-linecap="round"/>
+</svg>

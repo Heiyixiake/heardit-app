@@ -1,15 +1,18 @@
-<!-- heardit_v1.4.56_PWA更新缓存修复_20260721.html -->
+<!-- 听得清 ClearHear v1.5.0 · 品牌与适老化改版 -->
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="apple-mobile-web-app-title" content="听到鸟">
-<meta name="theme-color" content="#007AFF">
+<meta name="apple-mobile-web-app-title" content="听得清">
+<meta name="theme-color" content="#143B66">
 <link rel="manifest" href="manifest.json">
-<title>听到鸟 / HeardIt</title>
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="icon" type="image/svg+xml" href="icons/icon-a-ear-wave.svg">
+<title>听得清 ClearHear</title>
 <style>
 /* ===== RESET & BASE ===== */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
@@ -697,6 +700,528 @@ input[type=range]::-moz-range-thumb{
 .sheet-body::-webkit-scrollbar-track{background:transparent;}
 .sheet-body::-webkit-scrollbar-thumb{background:rgba(0,122,255,0.3);border-radius:2px;}
 .sheet-body{-ms-overflow-style:none;scrollbar-width:thin;scrollbar-color:rgba(0,122,255,0.3) transparent;}
+/* ============================================================
+   听得清 ClearHear · 长辈模式样式补丁 v3（视觉统一版）
+   用法：把本文件全部内容追加到 index.html 的 style 标签末尾，
+        再把 elder-mode.js 包一层 script 标签追加到 body 结束标签之前。
+
+   v3 设计原则：长辈模式不是另一套 App，而是「同一套 iOS 视觉语言的大字号版」。
+   - 色板完全沿用原项目：#F2F2F7 背景、#FFFFFF 卡片、#007AFF 主蓝、
+     #FF3B30 危险红、#34C759 成功绿、#E5E5EA 填充灰、#1C1C1E 主文字。
+   - 次要文字从 #8E8E93 提到 #3C3C43（约 9.7:1，WCAG AAA），不再用纯黑。
+   - 沿用 20px 卡片圆角 / 14px 按钮圆角 / 0 2px 8px 阴影 / 0.5px 分隔线 /
+     -apple-system 字体栈 / cubic-bezier(0.32,0.72,0,1) 缓动。
+   - 保留适老化规格：三档字号、次要文字高对比、≥60px 触控、84px 整宽主按钮。
+   - 只关闭无限循环 keyframes，保留原项目的短促触感过渡，不再一刀切 transition:none。
+   除最后一组全局增强外，其余外观规则全部以 body.elder-mode 开头，
+   关闭长辈模式时对原应用零影响。
+   ============================================================ */
+
+body.elder-mode {
+  --em-bg: #F2F2F7;
+  --em-surface: #FFFFFF;
+  --em-blue: #007AFF;
+  --em-blue-deep: #0066D6;
+  --em-danger: #FF3B30;
+  --em-success: #34C759;
+  --em-fg: #1C1C1E;
+  --em-secondary: #3C3C43;
+  --em-tertiary: #6C6C70;
+  --em-fill: #E5E5EA;
+  --em-line: rgba(60, 60, 67, 0.18);
+  --em-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  --em-radius-card: 20px;
+  --em-radius-btn: 14px;
+  --em-ease: cubic-bezier(0.32, 0.72, 0, 1);
+  --em-font: 20px;
+  --em-title: 32px;
+  --em-btn: 22px;
+  --em-touch: 64px;
+}
+
+body.elder-mode[data-font-size="m"] {
+  --em-font: 18px;
+  --em-title: 28px;
+  --em-btn: 20px;
+  --em-touch: 60px;
+}
+
+body.elder-mode[data-font-size="xl"] {
+  --em-font: 24px;
+  --em-title: 38px;
+  --em-btn: 26px;
+  --em-touch: 72px;
+}
+
+/* ---- 动效：关掉无限循环动画，保留原项目的短促触感反馈 ---- */
+body.elder-mode *,
+body.elder-mode *::before,
+body.elder-mode *::after {
+  animation: none !important;
+  transition-timing-function: var(--em-ease) !important;
+  text-shadow: none !important;
+}
+
+/* 扇形改整宽按钮时不让几何属性插值，避免出现「圆在变形」的中间帧 */
+body.elder-mode .fab-circle,
+body.elder-mode .start-test-circle-inner {
+  transition: none !important;
+}
+
+/* 只改手机容器内部；桌面下 body 外层的 #E5E5EA 由原项目媒体查询决定，保持一致 */
+body.elder-mode {
+  color: var(--em-fg) !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", "PingFang SC", sans-serif !important;
+  font-size: var(--em-font) !important;
+  line-height: 1.55 !important;
+  -webkit-user-select: text;
+  user-select: text;
+}
+body.elder-mode .app-container {
+  background: var(--em-bg) !important;
+  color: var(--em-fg) !important;
+}
+
+/* 字号放大后允许滚动，避免内容被裁掉 */
+body.elder-mode .screen { overflow-y: auto !important; }
+body.elder-mode .home-scroll-area { padding-bottom: 150px !important; }
+body.elder-mode .home-content {
+  max-width: 100% !important;
+  justify-content: flex-start !important;
+  padding: 14px 20px 140px !important;
+  word-break: break-word;
+}
+body.elder-mode .home-logo { margin-bottom: 10px !important; }
+body.elder-mode .home-logo svg { width: 68px !important; height: 68px !important; }
+body.elder-mode .home-tagline { margin-bottom: 20px !important; }
+
+/* ---- 文字层级：只放大字号与提高对比，不抹平粗细层级 ---- */
+body.elder-mode .text-secondary,
+body.elder-mode .headline,
+body.elder-mode .body-text,
+body.elder-mode .setting-desc,
+body.elder-mode .hs-note,
+body.elder-mode .latency-note,
+body.elder-mode .test-status,
+body.elder-mode .home-subtitle,
+body.elder-mode .home-tagline,
+body.elder-mode .gain-stepper-labels,
+body.elder-mode .dual-viz-legend,
+body.elder-mode .dual-viz-label,
+body.elder-mode .step-welcome-duration,
+body.elder-mode .step-welcome-guide-item,
+body.elder-mode .em-disclaimer {
+  color: var(--em-secondary) !important;
+  font-size: var(--em-font) !important;
+  font-weight: 400 !important;
+  opacity: 1 !important;
+}
+
+body.elder-mode .title-large,
+body.elder-mode .home-app-name,
+body.elder-mode .step-welcome-title,
+body.elder-mode .test-freq-value,
+body.elder-mode .sheet-nav-title {
+  font-size: var(--em-title) !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  letter-spacing: -0.3px !important;
+  color: var(--em-fg) !important;
+}
+
+body.elder-mode .home-subtitle {
+  font-size: calc(var(--em-font) + 2px) !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.2px !important;
+}
+
+body.elder-mode .setting-label,
+body.elder-mode .gain-title,
+body.elder-mode .hs-title,
+body.elder-mode .ha-status,
+body.elder-mode .hs-result-text {
+  font-size: var(--em-font) !important;
+  font-weight: 600 !important;
+  color: var(--em-fg) !important;
+}
+
+/* ---- 隐藏专业信息 ---- */
+body.elder-mode .dual-viz,
+body.elder-mode .dual-viz-legend,
+body.elder-mode .latency-card,
+body.elder-mode .audiogram-container,
+body.elder-mode .classification-table,
+body.elder-mode .hs-bars,
+body.elder-mode .test-progress-bar,
+body.elder-mode .home-version-float,
+body.elder-mode .home-no-data-version,
+body.elder-mode .home-brand svg {
+  display: none !important;
+}
+
+/* ---- 卡片：沿用原项目的白底 20px 圆角 + 轻阴影，不要粗描边 ---- */
+body.elder-mode .settings-card,
+body.elder-mode .gain-card,
+body.elder-mode .hearing-summary-card,
+body.elder-mode .result-summary-card,
+body.elder-mode .panel,
+body.elder-mode .test-step,
+body.elder-mode .card {
+  background: var(--em-surface) !important;
+  border: 0.5px solid var(--em-line) !important;
+  border-radius: var(--em-radius-card) !important;
+  box-shadow: var(--em-shadow) !important;
+  padding: 20px !important;
+}
+
+body.elder-mode .setting-row,
+body.elder-mode .classification-row {
+  border-bottom: 0.5px solid var(--em-fill) !important;
+}
+
+/* ---- 次要按钮：浅蓝底 + 蓝字，与主按钮形成层级 ---- */
+body.elder-mode .skip-test-btn,
+body.elder-mode .btn-text,
+body.elder-mode .em-entry,
+body.elder-mode .retest-btn,
+body.elder-mode .test-pause-btn {
+  min-height: var(--em-touch) !important;
+  padding: 12px 20px !important;
+  font-size: var(--em-font) !important;
+  font-weight: 600 !important;
+  color: var(--em-blue) !important;
+  background: rgba(0, 122, 255, 0.08) !important;
+  border: none !important;
+  border-radius: var(--em-radius-btn) !important;
+  opacity: 1 !important;
+  box-shadow: none !important;
+}
+
+body.elder-mode .skip-test-btn { width: 100% !important; margin-top: 14px !important; }
+
+/* ---- 通用按钮：保持原项目 .btn 的 600 字重与 14px 圆角 ---- */
+body.elder-mode .btn,
+body.elder-mode .btn-small,
+body.elder-mode .sheet-nav-back,
+body.elder-mode .sheet-nav-close {
+  min-height: var(--em-touch) !important;
+  padding: 14px 24px !important;
+  font-size: var(--em-btn) !important;
+  font-weight: 600 !important;
+  border-radius: var(--em-radius-btn) !important;
+}
+body.elder-mode .btn-primary { background: var(--em-blue) !important; color: #FFFFFF !important; border: none !important; }
+body.elder-mode .btn-stop { background: var(--em-danger) !important; color: #FFFFFF !important; border: none !important; }
+body.elder-mode .btn-outline { background: transparent !important; color: var(--em-blue) !important; border: 1.5px solid var(--em-blue) !important; }
+
+/* ---- 分段控件：沿用原项目的灰槽白片，只放大尺寸 ---- */
+body.elder-mode .segmented {
+  background: var(--em-fill) !important;
+  border-radius: 12px !important;
+  padding: 3px !important;
+  flex-wrap: wrap !important;
+}
+body.elder-mode .segmented-btn {
+  min-height: var(--em-touch) !important;
+  padding: 8px 10px !important;
+  font-size: var(--em-font) !important;
+  font-weight: 600 !important;
+  color: var(--em-secondary) !important;
+  background: transparent !important;
+  border: none !important;
+  border-radius: 9px !important;
+  opacity: 1 !important;
+}
+body.elder-mode .segmented-btn.active {
+  background: var(--em-surface) !important;
+  color: var(--em-blue) !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12) !important;
+}
+
+/* ---- 增益步进按钮：保留原项目的白圆 + 蓝字 ---- */
+body.elder-mode .gain-step-btn {
+  width: var(--em-touch) !important;
+  height: var(--em-touch) !important;
+  min-width: var(--em-touch) !important;
+  min-height: var(--em-touch) !important;
+  padding: 0 !important;
+  font-size: 28px !important;
+  font-weight: 400 !important;
+  color: var(--em-blue) !important;
+  background: var(--em-surface) !important;
+  border: 1.5px solid #C7C7CC !important;
+  border-radius: 50% !important;
+  box-shadow: var(--em-shadow) !important;
+}
+body.elder-mode .gain-step-btn:active { background: var(--em-blue) !important; color: #FFFFFF !important; }
+body.elder-mode .gain-value { font-size: calc(var(--em-title) - 4px) !important; font-weight: 700 !important; color: var(--em-blue) !important; }
+body.elder-mode input[type="range"] { height: 8px !important; border-radius: 4px !important; }
+
+/* ---- 警示条：沿用原项目的系统红 ---- */
+body.elder-mode .howl-banner.show {
+  display: block !important;
+  background: var(--em-danger) !important;
+  border: none !important;
+  border-radius: var(--em-radius-btn) !important;
+  color: #FFFFFF !important;
+  font-size: var(--em-font) !important;
+  font-weight: 600 !important;
+  padding: 14px 16px !important;
+}
+
+/* ---- 主界面扇形 FAB → 底部整宽大按钮
+   注意：原项目还有 .fab.mini .fab-circle 与绝对定位的图标/文字，
+   必须逐条用 !important 覆盖，否则大按钮会被压回小圆点。 */
+body.elder-mode .fab {
+  position: absolute !important;
+  left: 0 !important; right: 0 !important; bottom: 0 !important;
+  width: 100% !important; height: auto !important;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  background: var(--em-bg) !important;
+  border-top: 0.5px solid var(--em-line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+body.elder-mode .fab .fab-circle,
+body.elder-mode .fab.mini .fab-circle {
+  position: static !important;
+  width: 100% !important;
+  height: 84px !important;
+  min-height: 84px !important;
+  right: auto !important; bottom: auto !important;
+  border-radius: var(--em-radius-card) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  background: var(--em-blue) !important;
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.22) !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+body.elder-mode .fab.active .fab-circle {
+  background: var(--em-danger) !important;
+  box-shadow: 0 4px 16px rgba(255, 59, 48, 0.22) !important;
+}
+
+body.elder-mode .fab .fab-icon,
+body.elder-mode .fab.mini .fab-icon,
+body.elder-mode .fab .fab-label,
+body.elder-mode .fab.mini .fab-label {
+  position: static !important;
+  top: auto !important; left: auto !important;
+  transform: none !important;
+  opacity: 1 !important;
+  display: block !important;
+}
+
+body.elder-mode .fab-label {
+  font-size: var(--em-btn) !important;
+  font-weight: 600 !important;
+  color: #FFFFFF !important;
+  white-space: normal !important;
+}
+body.elder-mode .fab-icon svg { width: 32px !important; height: 32px !important; }
+
+/* ---- 首屏「直接听」同样改成整宽大按钮 ---- */
+body.elder-mode .start-test-circle {
+  position: absolute !important;
+  left: 0 !important; right: 0 !important; bottom: 0 !important;
+  width: 100% !important;
+  padding: 14px 20px calc(14px + env(safe-area-inset-bottom, 0px)) !important;
+  background: var(--em-bg) !important;
+  border-top: 0.5px solid var(--em-line) !important;
+  border-radius: 0 !important;
+}
+body.elder-mode .start-test-circle-inner {
+  position: static !important;
+  width: 100% !important; height: 84px !important;
+  left: auto !important; bottom: auto !important;
+  border-radius: var(--em-radius-card) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 14px !important;
+  background: var(--em-blue) !important;
+  box-shadow: 0 4px 16px rgba(0, 122, 255, 0.22) !important;
+  transform: none !important;
+}
+body.elder-mode .start-test-circle:active .start-test-circle-inner { transform: scale(0.98) !important; }
+body.elder-mode .start-test-icon,
+body.elder-mode .start-test-label {
+  position: static !important;
+  top: auto !important; left: auto !important;
+  transform: none !important;
+  white-space: normal !important;
+}
+body.elder-mode .start-test-icon svg { width: 32px !important; height: 32px !important; }
+body.elder-mode .start-test-label {
+  font-size: var(--em-btn) !important;
+  font-weight: 600 !important;
+  color: #FFFFFF !important;
+}
+
+/* ---- 测听页 ---- */
+body.elder-mode .test-tap-area {
+  min-height: 180px !important;
+  border: 1.5px solid var(--em-blue) !important;
+  border-radius: var(--em-radius-card) !important;
+  background: var(--em-surface) !important;
+  box-shadow: var(--em-shadow) !important;
+  color: var(--em-blue) !important;
+}
+body.elder-mode .test-tap-text {
+  font-size: var(--em-title) !important;
+  font-weight: 600 !important;
+  color: var(--em-blue) !important;
+}
+
+/* ---- 长辈模式控件：iOS 胶囊 + 白卡片，标准/长辈模式外观一致 ---- */
+.em-switch {
+  position: absolute;
+  top: max(12px, env(safe-area-inset-top, 0px));
+  right: 12px;
+  z-index: 90;
+  min-height: 44px;
+  padding: 8px 16px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #007AFF;
+  background: #FFFFFF;
+  border: 0.5px solid rgba(60, 60, 67, 0.18);
+  border-radius: 999px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+  transition: background 200ms cubic-bezier(0.32, 0.72, 0, 1), color 200ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.em-switch:active { opacity: 0.8; }
+.em-switch[aria-pressed="true"] {
+  background: #007AFF;
+  color: #FFFFFF;
+  border-color: #007AFF;
+}
+
+.em-panel {
+  position: absolute;
+  top: max(68px, calc(env(safe-area-inset-top, 0px) + 56px));
+  right: 12px;
+  z-index: 96;
+  width: min(320px, calc(100% - 24px));
+  padding: 20px;
+  background: #FFFFFF;
+  border: 0.5px solid rgba(60, 60, 67, 0.18);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  font-size: 15px;
+  color: #1C1C1E;
+  animation: fadeIn 250ms cubic-bezier(0.32, 0.72, 0, 1);
+}
+.em-panel[hidden] { display: none; }
+/* 焦点落在对话框容器时不必画选中框；键盘 Tab 到内部按钮仍有 focus-visible */
+.em-panel:focus-visible { outline: none; }
+.em-panel h2 { margin: 0 0 6px; font-size: 17px; font-weight: 600; color: #1C1C1E; }
+.em-panel-intro { margin: 0 0 16px; font-size: 14px; color: #6C6C70; line-height: 1.5; }
+.em-panel-label {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #6C6C70;
+  letter-spacing: 0.2px;
+}
+.em-panel-row { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 16px; }
+
+.em-segmented {
+  gap: 0;
+  padding: 2px;
+  background: #E5E5EA;
+  border-radius: 10px;
+}
+.em-panel button {
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #1C1C1E;
+  background: transparent;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+.em-segmented button { flex: 1; }
+.em-panel button[aria-pressed="true"] {
+  background: #FFFFFF;
+  color: #007AFF;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+}
+
+.em-panel-actions { margin-bottom: 0; border-top: 0.5px solid #E5E5EA; padding-top: 12px; }
+.em-panel-actions button { flex: 1; color: #007AFF; }
+.em-panel-actions #em-exit { color: #FF3B30; }
+
+/* 首屏的显眼入口，关闭长辈模式时可见 */
+.em-entry {
+  display: block;
+  width: 100%;
+  min-height: 52px;
+  margin-top: 12px;
+  padding: 10px 16px;
+  font-size: 16px;
+  font-weight: 600;
+  color: #007AFF;
+  background: rgba(0, 122, 255, 0.08);
+  border: none;
+  border-radius: 14px;
+  cursor: pointer;
+  -webkit-appearance: none;
+  appearance: none;
+}
+body.elder-mode .em-entry { display: none !important; }
+
+/* 常驻免责声明：标准模式保持原项目的浅灰小字，长辈模式放大提对比 */
+.em-disclaimer {
+  width: 100%;
+  margin: 20px 0 8px;
+  padding: 0 20px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: #8E8E93;
+  text-align: center;
+}
+.em-disclaimer-home { margin: 0 0 12px; }
+body.elder-mode .em-disclaimer-home { margin-bottom: 16px !important; }
+body.elder-mode .em-disclaimer {
+  color: var(--em-secondary) !important;
+  font-size: max(16px, calc(var(--em-font) - 6px)) !important;
+  font-weight: 400 !important;
+}
+
+/* 屏幕阅读器专用播报区 */
+.em-live {
+  position: absolute !important;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- 全局可访问性增强（不依赖长辈模式） ---- */
+:focus-visible { outline: 3px solid rgba(0, 122, 255, 0.35); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
 </style>
 </head>
 <body>
@@ -706,23 +1231,21 @@ input[type=range]::-moz-range-thumb{
   <!-- ==================== SCREEN 1: HOME NO DATA ==================== -->
   <div class="screen active" id="screen-home-no-data">
     <div class="safe-top"></div>
-    <div class="home-no-data-version" id="home-no-data-version">HeardIt</div>
+    <div class="home-no-data-version" id="home-no-data-version">听得清</div>
     <div class="home-content">
       <div class="home-logo">
-        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-          <circle cx="40" cy="40" r="38" fill="rgba(0,122,255,0.08)" stroke="#007AFF" stroke-width="2"/>
-          <path d="M28 30 C28 20 34 14 40 14 C46 14 52 20 52 30 C52 40 46 48 40 52 C34 48 28 40 28 30Z" fill="#007AFF" opacity="0.85"/>
-          <path d="M36 26 C36 26 38 24 40 24 C42 24 44 26 44 26" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <circle cx="36" cy="30" r="2.5" fill="#fff"/>
-          <circle cx="44" cy="30" r="2.5" fill="#fff"/>
-          <path d="M37 35 Q40 38 43 35" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <path d="M24 36 Q18 40 16 48" stroke="#007AFF" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <path d="M56 36 Q62 40 64 48" stroke="#007AFF" stroke-width="2" fill="none" stroke-linecap="round"/>
-        </svg>
+        <svg width="80" height="80" viewBox="0 0 512 512" role="img" aria-label="听得清">
+    <rect width="512" height="512" rx="112" fill="#143B66"/>
+    <path d="M 300 128 C 226 108, 158 158, 158 244 C 158 300, 178 344, 214 378 C 236 398, 246 418, 246 446" fill="none" stroke="#FFFFFF" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 272 200 C 234 192, 210 218, 210 252 C 210 278, 222 296, 240 310" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"/>
+    <path d="M 348 196 C 376 224, 376 288, 348 316" fill="none" stroke="#FFB74D" stroke-width="20" stroke-linecap="round"/>
+    <path d="M 392 164 C 436 210, 436 302, 392 348" fill="none" stroke="#FFB74D" stroke-width="20" stroke-linecap="round"/>
+    <path d="M 434 132 C 490 190, 490 322, 434 380" fill="none" stroke="#FFB74D" stroke-width="20" stroke-linecap="round"/>
+          </svg>
       </div>
-      <div class="home-app-name title-large text-primary">听到鸟</div>
-      <div class="home-subtitle headline text-secondary">HeardIt</div>
-      <div class="home-tagline body-text">让普通耳机成为你的助听工具</div>
+      <div class="home-app-name title-large text-primary">听得清</div>
+      <div class="home-subtitle headline text-secondary">ClearHear</div>
+      <div class="home-tagline body-text">戴上耳机，把声音听得更清楚</div>
       <button class="skip-test-btn" id="skip-test-btn" onclick="skipHearingTest()">跳过听力测试</button>
     </div>
 
@@ -749,19 +1272,17 @@ input[type=range]::-moz-range-thumb{
 
       <!-- App Logo & Name -->
       <div class="home-brand" id="home-brand" style="display:flex;align-items:center;padding:12px 0 16px;transition:all 350ms cubic-bezier(0.32,0.72,0,1);">
-        <svg width="40" height="40" viewBox="0 0 80 80" fill="none" style="flex-shrink:0;">
-          <circle cx="40" cy="40" r="38" fill="rgba(0,122,255,0.08)" stroke="#007AFF" stroke-width="2"/>
-          <path d="M28 30 C28 20 34 14 40 14 C46 14 52 20 52 30 C52 40 46 48 40 52 C34 48 28 40 28 30Z" fill="#007AFF" opacity="0.85"/>
-          <path d="M36 26 C36 26 38 24 40 24 C42 24 44 26 44 26" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <circle cx="36" cy="30" r="2.5" fill="#fff"/>
-          <circle cx="44" cy="30" r="2.5" fill="#fff"/>
-          <path d="M37 35 Q40 38 43 35" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
-          <path d="M24 36 Q18 40 16 48" stroke="#007AFF" stroke-width="2" fill="none" stroke-linecap="round"/>
-          <path d="M56 36 Q62 40 64 48" stroke="#007AFF" stroke-width="2" fill="none" stroke-linecap="round"/>
+        <svg width="40" height="40" viewBox="0 0 512 512" role="img" aria-label="听得清" style="flex-shrink:0;">
+    <rect width="512" height="512" rx="112" fill="#143B66"/>
+    <path d="M 300 128 C 226 108, 158 158, 158 244 C 158 300, 178 344, 214 378 C 236 398, 246 418, 246 446" fill="none" stroke="#FFFFFF" stroke-width="36" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M 272 200 C 234 192, 210 218, 210 252 C 210 278, 222 296, 240 310" fill="none" stroke="#FFFFFF" stroke-width="28" stroke-linecap="round"/>
+    <path d="M 348 196 C 376 224, 376 288, 348 316" fill="none" stroke="#FFB74D" stroke-width="20" stroke-linecap="round"/>
+    <path d="M 392 164 C 436 210, 436 302, 392 348" fill="none" stroke="#FFB74D" stroke-width="20" stroke-linecap="round"/>
+    <path d="M 434 132 C 490 190, 490 322, 434 380" fill="none" stroke="#FFB74D" stroke-width="20" stroke-linecap="round"/>
         </svg>
         <div style="margin-left:10px;">
-          <div style="font-size:18px;font-weight:700;color:#1C1C1E;line-height:1.2;">听到鸟</div>
-          <div style="font-size:13px;color:#8E8E93;line-height:1.2;">HeardIt</div>
+          <div style="font-size:18px;font-weight:700;color:#1C1C1E;line-height:1.2;">听得清</div>
+          <div style="font-size:13px;color:#8E8E93;line-height:1.2;">ClearHear</div>
         </div>
       </div>
 
@@ -880,7 +1401,7 @@ input[type=range]::-moz-range-thumb{
     </div><!-- end home-scroll-area -->
 
     <!-- App name & version: fixed bottom-left -->
-    <div class="home-version-float" id="home-version-float">HeardIt</div>
+    <div class="home-version-float" id="home-version-float">听得清</div>
 
     <!-- FAB (Fan-Shape Quarter Circle) -->
     <div class="fab" id="fab">
@@ -1064,13 +1585,13 @@ input[type=range]::-moz-range-thumb{
 
 <script>
 /*
-  heardit v1.4.0 - UI焕新
+  听得清 ClearHear - 基于 heardit 音频内核
   heardit_UI.html 前端 + v1.3.23 底层音频技术
   6-band WDRC + NAL-NL2 + Howl Detection + 啸叫保护
 */
 
 // ====== VERSION ======
-const VERSION = 'v1.4.56';
+const VERSION = 'v1.5.0';
 
 // ====== AUDIO CONSTANTS (from v1.3.23, UNCHANGED) ======
 const DAMAGED_PROFILE = {
@@ -2896,9 +3417,9 @@ function stopDualVizAnimation() {
 (function init() {
   // Set version numbers in UI
   var verEl = document.getElementById('home-no-data-version');
-  if (verEl) verEl.textContent = 'HeardIt ' + VERSION;
+  if (verEl) verEl.textContent = '听得清 ' + VERSION;
   var verFloat = document.getElementById('home-version-float');
-  if (verFloat) verFloat.textContent = 'HeardIt ' + VERSION;
+  if (verFloat) verFloat.textContent = '听得清 ' + VERSION;
   // Load saved hearing data from localStorage
   if (loadHearingData()) {
     buildHomeSummary();
@@ -2912,35 +3433,581 @@ function stopDualVizAnimation() {
 </script>
 
 <script>
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js').then(function(reg) {
-    // 检测到新版本 Service Worker 时自动刷新页面
-    if (reg.waiting) {
-      reg.waiting.postMessage({action:'skipWaiting'});
-      window.location.reload();
-    }
-    reg.addEventListener('updatefound', function() {
-      var newWorker = reg.installing;
-      if (newWorker) {
-        newWorker.addEventListener('statechange', function() {
-          if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-            // 新版本已就绪，通知用户后刷新
-            if (confirm('发现新版本，点击确定更新')) {
-              newWorker.postMessage({action:'skipWaiting'});
-              window.location.reload();
-            }
+/* 听得清 ClearHear：注册 SW，但不用 confirm 或自动 reload 打断正在进行的助听。
+   页面导航在 sw.js 中已改为 network-first，用户下次打开自然拿到新版本。 */
+(function () {
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('./sw.js').then(function (reg) {
+      if (reg.waiting) reg.waiting.postMessage({ action: 'skipWaiting' });
+      reg.addEventListener('updatefound', function () {
+        var nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', function () {
+          if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+            nw.postMessage({ action: 'skipWaiting' });
           }
         });
-      }
-    });
+      });
+    }).catch(function () {});
   });
-  // 监听 Service Worker 消息
-  navigator.serviceWorker.addEventListener('message', function(e) {
-    if (e.data && e.data.action === 'reload') {
-      window.location.reload();
+})();
+</script>
+<script>
+/* ============================================================
+   听得清 ClearHear · 长辈模式行为补丁 v2
+   用法：把本文件内容包一层 script 标签追加到 index.html 的 body 结束标签之前
+        （需同时引入 elder-mode.css）。不修改原有任何函数。
+
+   v2 核心：原文案快照 + 可逆热切换
+   - 用 WeakMap 记住每个文本节点的「标准模式原文」，开启时写白话文案，
+     退出时原样还原，全程不刷新页面，助听不会被中断。
+   - 动态文案（状态、按钮、测听提示）由 MutationObserver 增量捕获，
+     用 requestAnimationFrame 合并批处理；关闭长辈模式时 Observer 完全断开，
+     对原应用零开销。
+   - 只处理含中文的文本，纯数字/单位/英文一律跳过，避免频谱数值高频抖动。
+   ============================================================ */
+
+(function () {
+  'use strict';
+
+  var KEY_MODE = 'clearhear_elder_mode';
+  var KEY_FONT = 'clearhear_elder_font';
+  var KEY_VOICE = 'clearhear_elder_voice';
+
+  function read(key) {
+    try { return localStorage.getItem(key); } catch (e) { return null; }
+  }
+  function store(key, value) {
+    try { localStorage.setItem(key, value); } catch (e) {}
+  }
+
+  // 兼容上一版提案用过的键，避免老用户设置丢失
+  var legacyMode = read('heardit_elder_mode');
+  var enabled = read(KEY_MODE) !== null ? read(KEY_MODE) === '1' : legacyMode === '1';
+  var fontKey = read(KEY_FONT) || read('heardit_elder_font') || 'l';
+  var voiceOn = (read(KEY_VOICE) || read('heardit_elder_voice') || '1') !== '0';
+
+  var DISCLAIMER = '听得清只是把声音放大，不能代替医院的听力检查或专业设备。如果听力持续下降，请及时就医。';
+  // 首屏空间有限，用一行短版，避开右上角开关与底部大圆；完整版放在主界面
+  var DISCLAIMER_SHORT = '本应用不能代替医院听力检查或专业设备。';
+
+  /* ---- 文案映射：整句优先，其次按长度降序做局部替换 ---- */
+  var EXACT = {
+    '戴上耳机，把声音听得更清楚': '戴上耳机，就能听得更清楚',
+    '让普通耳机成为你的助听工具': '戴上耳机，就能听得更清楚',
+    '跳过听力测试': '先不测，直接听',
+    '开始听力测试': '测一下听力',
+    '开始助听': '开始听',
+    '停止助听': '停止听',
+    '助听运行中': '正在帮您听清楚',
+    '啸叫保护': '防止尖叫',
+    'AI 降噪': '减少杂音',
+    'AI降噪': '减少杂音',
+    '辅助增益': '声音大小',
+    '音频延迟': '声音快慢',
+    '听力概览': '您的听力情况',
+    '听力测试': '测一下听力',
+    '模拟数据': '示例数据',
+    '开始助听后显示': '开始听之后才有',
+    '已停止': '已经关了',
+    '点击试听': '点这里先听一下',
+    '请仔细聆听...': '请安静地听',
+    '正在播放...': '正在放声音',
+    '启动中...': '正在打开',
+    '恢复中...': '正在恢复',
+    '切换中...': '正在切换',
+    '无增益': '没放大',
+    '轻度增益': '放大一点点',
+    '适度增益': '放得刚刚好',
+    '强增益': '放得比较大',
+    '关闭': '关掉',
+    '自动': '自己调'
+  };
+
+  var LABELS = [
+    ['以上为模拟数据（左耳正常、右耳中度），为了更好的针对您的左右耳分别进行不同频率的听力补偿，请进行听力测试。',
+      '现在用的是示例数据。想按您自己的耳朵来调，可以先测一下听力。'],
+    ['啸叫频繁，请降低音量或使用手机麦克风', '尖叫声太多，请把音量调小'],
+    ['啸叫频繁，已自动关闭', '尖叫声太多，已经先关掉了'],
+    ['耳机麦克风 · 靠近耳机喇叭，易啸叫，建议降低音量', '用耳机上的麦克风容易有尖叫声，请把音量调小'],
+    ['手机麦克风 · 远离耳机喇叭，啸叫风险低', '用手机上的麦克风，不容易有尖叫声'],
+    ['手机麦克风啸叫风险更低', '用手机上的麦克风，不容易有尖叫声'],
+    ['接下来测试右耳，请保持佩戴', '接下来测右边耳朵，耳机别摘'],
+    ['关闭啸叫保护 · 默认关', '现在没开，一般不用开'],
+    ['请在安静环境下测试', '找个安静的地方'],
+    ['手机音量调至 50% 左右', '把手机音量调到一半'],
+    ['听到声音就点击按钮', '听到声音就按下面的大按钮'],
+    ['请使用有线耳机', '请戴上带线的耳机'],
+    ['请使用耳机', '请戴上耳机'],
+    ['左耳测试完成', '左边耳朵测好了'],
+    ['已暂停 - 点击继续', '先停了，按一下接着测'],
+    ['开始测试右耳', '开始测右边'],
+    ['检测到啸叫', '听到尖叫声'],
+    ['啸叫保护中', '正在处理尖叫声'],
+    ['麦克风切换中', '正在换麦克风'],
+    ['未听到 (最大音量)', '这个声音没听到，没关系'],
+    ['开始助听后显示', '开始听之后才有'],
+    ['AI降噪: 自动 (下次开启生效)', '减少杂音已打开，下次开启生效'],
+    ['AI降噪: 关闭 (下次开启生效)', '减少杂音已关掉，下次开启生效'],
+    ['耳机麦克风', '耳机上的麦克风'],
+    ['手机麦克风', '手机上的麦克风'],
+    ['麦克风选择', '用哪个麦克风'],
+    ['开始听力测试', '测一下听力'],
+    ['跳过听力测试', '先不测，直接听'],
+    ['啸叫保护', '防止尖叫'],
+    ['辅助增益', '声音大小'],
+    ['音频延迟', '声音快慢'],
+    ['听力概览', '您的听力情况'],
+    ['模拟数据', '示例数据'],
+    ['继续测试', '接着测'],
+    ['暂停测试', '先停一下'],
+    ['点击试听', '点这里先听一下'],
+    ['已记录', '记下了'],
+    ['左耳', '左边耳朵'],
+    ['右耳', '右边耳朵'],
+    ['啸叫', '尖叫声'],
+    ['增益', '放大'],
+    ['频率', '第几个音'],
+    ['自动', '自己调'],
+    ['关闭', '关掉']
+  ];
+  LABELS.sort(function (a, b) { return b[0].length - a[0].length; });
+
+  // 带变量的动态文案，用正则整句接管
+  var PATTERNS = [
+    [/检测到啸叫\s*\([^)]*\)[^，,]*[，,]\s*已自动静音/, '听到尖叫声，已经先静音了'],
+    [/已记录\s*\(~?\s*[\d.]+\s*dB HL\)/, '记下了，继续下一个音'],
+    [/^频率\s*\d+\s*\/\s*\d+$/, '正在测第几个音']
+  ];
+
+  // 少数按钮要整句换掉说法，并且配套交换点击行为。
+  // 注意：首屏主按钮只有 class 没有 id，必须按 class 匹配，否则文案会
+  // 与 applyBehavior 交换后的点击行为不一致。
+  var OVERRIDE_BY_ID = { 'skip-test-btn': '想测一下听力？点这里' };
+  var OVERRIDE_BY_CLASS = { 'start-test-label': '戴上耳机，直接听' };
+
+  var SKIP_CLASSES = [
+    'em-switch', 'em-panel', 'em-live', 'em-disclaimer', 'em-entry',
+    'dual-viz-bars', 'hs-bars', 'latency-card',
+    'home-version-float', 'home-no-data-version'
+  ];
+
+  function isSkipped(node) {
+    var p = node.parentElement;
+    while (p && p !== document.body) {
+      var t = p.nodeName;
+      if (t === 'SCRIPT' || t === 'STYLE' || t === 'NOSCRIPT' || t === 'svg' || t === 'SVG') return true;
+      if (p.classList) {
+        for (var i = 0; i < SKIP_CLASSES.length; i++) {
+          if (p.classList.contains(SKIP_CLASSES[i])) return true;
+        }
+      }
+      p = p.parentElement;
+    }
+    return false;
+  }
+
+  function translate(text) {
+    if (!text || !/[\u4e00-\u9fa5]/.test(text)) return text;
+    for (var i = 0; i < PATTERNS.length; i++) {
+      if (PATTERNS[i][0].test(text)) return PATTERNS[i][1];
+    }
+    var exact = EXACT[text.trim()];
+    if (exact) return text.replace(text.trim(), exact);
+    var out = text;
+    for (var j = 0; j < LABELS.length; j++) {
+      out = out.split(LABELS[j][0]).join(LABELS[j][1]);
+    }
+    return out;
+  }
+
+  /* ---- 可逆快照 ---- */
+  var STD = new WeakMap();     // 文本节点 -> 标准模式原文
+  var LAST = new WeakMap();    // 文本节点 -> 我们最后一次写入的白话文案
+  var REGISTERED = new Set();  // 便于退出时还原 + 清理已脱离文档的节点
+  var observer = null;
+  var suspended = false;
+  var pending = new Set();
+  var scheduled = false;
+
+  function elderText(node) {
+    var p = node.parentElement;
+    if (p) {
+      if (p.id && OVERRIDE_BY_ID[p.id]) return OVERRIDE_BY_ID[p.id];
+      if (p.classList) {
+        for (var key in OVERRIDE_BY_CLASS) {
+          if (p.classList.contains(key)) return OVERRIDE_BY_CLASS[key];
+        }
+      }
+    }
+    return translate(STD.get(node));
+  }
+
+  function writeElder(node) {
+    var next = elderText(node);
+    if (next == null || next === node.nodeValue) return;
+    LAST.set(node, next);
+    node.nodeValue = next;
+  }
+
+  function restore(node) {
+    var std = STD.get(node);
+    if (std != null && node.nodeValue !== std) node.nodeValue = std;
+    LAST.delete(node);
+  }
+
+  function walkText(root, fn) {
+    var walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null, false);
+    var n;
+    while ((n = walker.nextNode())) fn(n);
+  }
+
+  function collect(root, list) {
+    walkText(root, function (n) {
+      if (!isSkipped(n)) { REGISTERED.add(n); list.push(n); }
+    });
+  }
+
+  function withObserverOff(fn) {
+    if (observer) observer.disconnect();
+    suspended = true;
+    try { fn(); } finally {
+      suspended = false;
+      if (enabled && observer) {
+        observer.observe(document.body, {
+          childList: true, subtree: true, characterData: true
+        });
+      }
+    }
+  }
+
+  function handleNode(n) {
+    if (n.nodeType !== 3) return;
+    if (!document.body.contains(n)) { REGISTERED.delete(n); return; }
+    if (isSkipped(n)) return;
+    // textContent 赋值会新建文本节点，必须在这里登记，否则退出时还原不到它
+    REGISTERED.add(n);
+    var cur = n.nodeValue;
+    if (LAST.get(n) === cur) return;       // 忽略自己写入引发的回调
+    STD.set(n, cur);                        // 应用刚写了新的原文
+    writeElder(n);
+  }
+
+  function flush() {
+    scheduled = false;
+    withObserverOff(function () {
+      pending.forEach(handleNode);
+      pending.clear();
+      // 清理已经被 innerHTML 换掉的节点，避免 Set 无限增长
+      REGISTERED.forEach(function (n) {
+        if (!document.body.contains(n)) REGISTERED.delete(n);
+      });
+    });
+  }
+
+  function schedule(nodes) {
+    for (var i = 0; i < nodes.length; i++) pending.add(nodes[i]);
+    if (scheduled) return;
+    scheduled = true;
+    if (window.requestAnimationFrame) window.requestAnimationFrame(flush);
+    else setTimeout(flush, 32);
+  }
+
+  /* ---- 状态播报：aria-live 给屏幕阅读器，TTS 给不看屏幕的长辈 ---- */
+  var live;
+  function announce(text) {
+    if (!text) return;
+    if (live) live.textContent = text;
+    if (!voiceOn || !('speechSynthesis' in window)) return;
+    try {
+      window.speechSynthesis.cancel();
+      var u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-CN';
+      u.rate = 0.85;
+      window.speechSynthesis.speak(u);
+    } catch (e) {}
+  }
+
+  /* ---- 首屏默认路径：开启时长辈优先「直接听」，测听改为次要 ---- */
+  var startCircle = document.getElementById('start-test-circle');
+  var skipBtn = document.getElementById('skip-test-btn');
+  var origStartClick = startCircle ? startCircle.getAttribute('onclick') : null;
+  var origSkipClick = skipBtn ? skipBtn.getAttribute('onclick') : null;
+
+  function applyBehavior(elder) {
+    if (startCircle && origStartClick != null) {
+      startCircle.setAttribute('onclick', elder ? 'skipHearingTest()' : origStartClick);
+    }
+    if (skipBtn && origSkipClick != null) {
+      skipBtn.setAttribute('onclick', elder ? 'startHearingTest()' : origSkipClick);
+    }
+  }
+
+  /* ---- 控件 ---- */
+  var host = document.getElementById('app') || document.body;
+  var sw = document.createElement('button');
+  sw.className = 'em-switch';
+  sw.type = 'button';
+  sw.setAttribute('aria-controls', 'em-panel');
+  sw.setAttribute('aria-expanded', 'false');
+  sw.setAttribute('aria-pressed', 'false');
+  sw.textContent = '长辈模式';
+
+  var panel = document.createElement('div');
+  panel.className = 'em-panel';
+  panel.id = 'em-panel';
+  panel.setAttribute('role', 'dialog');
+  panel.setAttribute('aria-label', '长辈模式设置');
+  panel.setAttribute('tabindex', '-1');
+  panel.hidden = true;
+  panel.innerHTML = [
+    '<h2>长辈模式设置</h2>',
+    '<p class="em-panel-intro">字更大、按钮更好按、说法更简单。</p>',
+    '<p class="em-panel-label">字号</p>',
+    '<div class="em-panel-row em-segmented" id="em-font-row">',
+    '  <button type="button" data-font="m" aria-pressed="false">标准</button>',
+    '  <button type="button" data-font="l" aria-pressed="true">大</button>',
+    '  <button type="button" data-font="xl" aria-pressed="false">超大</button>',
+    '</div>',
+    '<p class="em-panel-label">语音提示</p>',
+    '<div class="em-panel-row em-segmented" id="em-voice-row">',
+    '  <button type="button" data-voice="1" aria-pressed="true">开</button>',
+    '  <button type="button" data-voice="0" aria-pressed="false">关</button>',
+    '</div>',
+    '<div class="em-panel-row em-panel-actions">',
+    '  <button type="button" id="em-close">收起设置</button>',
+    '  <button type="button" id="em-exit">退出长辈模式</button>',
+    '</div>'
+  ].join('');
+
+  live = document.createElement('div');
+  live.className = 'em-live';
+  live.setAttribute('role', 'status');
+  live.setAttribute('aria-live', 'polite');
+  live.setAttribute('aria-atomic', 'true');
+
+  host.appendChild(sw);
+  host.appendChild(panel);
+  host.appendChild(live);
+
+  // 首屏显眼入口：插在「跳过听力测试」之前，避开底部蓝色大圆的遮挡
+  var homeContent = document.querySelector('#screen-home-no-data .home-content');
+  var entry = null;
+  if (homeContent) {
+    entry = document.createElement('button');
+    entry.className = 'em-entry';
+    entry.type = 'button';
+    entry.textContent = '字太小？点这里开长辈模式';
+    var skip = document.getElementById('skip-test-btn');
+    if (skip && skip.parentNode === homeContent) homeContent.insertBefore(entry, skip);
+    else homeContent.appendChild(entry);
+  }
+  function makeDisclaimer(text, extraClass) {
+    var p = document.createElement('p');
+    p.className = 'em-disclaimer' + (extraClass ? ' ' + extraClass : '');
+    p.textContent = text;
+    return p;
+  }
+  // 首屏：一行短版放在入口按钮之前，确保始终在底部大圆上缘之上；
+  // 主界面：完整版放滚动区末尾
+  if (homeContent && entry) homeContent.insertBefore(makeDisclaimer(DISCLAIMER_SHORT, 'em-disclaimer-home'), entry);
+  else if (homeContent) homeContent.appendChild(makeDisclaimer(DISCLAIMER_SHORT, 'em-disclaimer-home'));
+  var scrollArea = document.getElementById('home-scroll-area');
+  if (scrollArea) scrollArea.appendChild(makeDisclaimer(DISCLAIMER, ''));
+
+  function syncPanel() {
+    sw.textContent = enabled ? '长辈模式 · 开' : '长辈模式';
+    sw.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+    // 用 Array.prototype.forEach.call 而非 NodeList.forEach，兼容 Chrome < 55
+    Array.prototype.forEach.call(panel.querySelectorAll('#em-font-row button'), function (b) {
+      b.setAttribute('aria-pressed', b.dataset.font === fontKey ? 'true' : 'false');
+    });
+    Array.prototype.forEach.call(panel.querySelectorAll('#em-voice-row button'), function (b) {
+      b.setAttribute('aria-pressed', (b.dataset.voice === '1') === voiceOn ? 'true' : 'false');
+    });
+  }
+
+  // 面板聚焦时不要让浏览器把背景页面滚走（否则首屏 logo 会被裁掉）
+  function focusNoScroll(el) {
+    if (!el) return;
+    try { el.focus({ preventScroll: true }); }
+    catch (e) { try { el.focus(); } catch (e2) {} }
+  }
+
+  function openPanel() {
+    panel.hidden = false;
+    sw.setAttribute('aria-expanded', 'true');
+    // 焦点落在对话框容器而不是第一个按钮：避免焦点框被误读成「已选中」
+    focusNoScroll(panel);
+  }
+  function closePanel(returnFocus) {
+    panel.hidden = true;
+    sw.setAttribute('aria-expanded', 'false');
+    if (returnFocus) focusNoScroll(sw);
+  }
+
+  function setEnabled(next, quiet) {
+    if (next === enabled) return;
+    enabled = next;
+    store(KEY_MODE, enabled ? '1' : '0');
+    if (enabled) {
+      document.body.classList.add('elder-mode');
+      document.body.dataset.fontSize = fontKey;
+      // 当前 DOM 里的值就是标准模式原文，强制刷新快照后再写白话文案
+      var all = [];
+      collect(document.body, all);
+      withObserverOff(function () {
+        all.forEach(function (n) { STD.set(n, n.nodeValue); });
+
+        all.forEach(writeElder);
+      });
+      applyBehavior(true);
+      if (!quiet) announce('长辈模式已开启，字变大了');
+    } else {
+      withObserverOff(function () {
+        REGISTERED.forEach(restore);
+      });
+      document.body.classList.remove('elder-mode');
+      applyBehavior(false);
+      if (!quiet) announce('已退出长辈模式');
+    }
+    syncPanel();
+  }
+
+  sw.addEventListener('click', function () {
+    if (!enabled) {
+      setEnabled(true);
+      openPanel();
+    } else if (panel.hidden) {
+      openPanel();
+    } else {
+      closePanel(true);
     }
   });
-}
+
+  if (entry) {
+    entry.addEventListener('click', function () {
+      if (!enabled) setEnabled(true);
+      openPanel();
+    });
+  }
+
+  panel.querySelector('#em-close').addEventListener('click', function () { closePanel(true); });
+  panel.querySelector('#em-exit').addEventListener('click', function () {
+    closePanel(false);
+    setEnabled(false);
+    focusNoScroll(sw);
+  });
+
+  panel.querySelector('#em-font-row').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('button[data-font]') : e.target;
+    if (!b || !b.dataset || !b.dataset.font) return;
+    fontKey = b.dataset.font;
+    store(KEY_FONT, fontKey);
+    document.body.dataset.fontSize = fontKey;
+    syncPanel();
+    announce(fontKey === 'xl' ? '字号已调到超大' : fontKey === 'l' ? '字号已调到大' : '字号已调到标准');
+  });
+
+  panel.querySelector('#em-voice-row').addEventListener('click', function (e) {
+    var b = e.target.closest ? e.target.closest('button[data-voice]') : e.target;
+    if (!b || !b.dataset || b.dataset.voice == null) return;
+    voiceOn = b.dataset.voice === '1';
+    store(KEY_VOICE, voiceOn ? '1' : '0');
+    syncPanel();
+    announce(voiceOn ? '语音提示已打开' : '语音提示已关闭');
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !panel.hidden) closePanel(true);
+  });
+
+  /* 关键状态变化时朗读，替代细小的 toast */
+  var fabCircle = document.getElementById('fab-circle');
+  if (fabCircle) {
+    fabCircle.addEventListener('click', function () {
+      setTimeout(function () {
+        if (!enabled) return;
+        var label = document.getElementById('fab-label');
+        var status = document.getElementById('ha-status');
+        announce(label ? label.textContent.trim() : (status ? status.textContent.trim() : ''));
+      }, 450);
+    });
+  }
+
+  var howlBanner = document.getElementById('howl-banner');
+  if (howlBanner) {
+    new MutationObserver(function () {
+      if (enabled && howlBanner.classList.contains('show')) {
+        announce('听到尖叫声，已经先静音了');
+      }
+    }).observe(howlBanner, { attributes: true, attributeFilter: ['class'] });
+  }
+
+  observer = new MutationObserver(function (records) {
+    if (suspended || !enabled) return;
+    var nodes = [];
+    for (var i = 0; i < records.length; i++) {
+      var r = records[i];
+      if (r.type === 'characterData') {
+        nodes.push(r.target);
+      } else if (r.type === 'childList') {
+        for (var j = 0; j < r.addedNodes.length; j++) {
+          var n = r.addedNodes[j];
+          if (n.nodeType === 3) nodes.push(n);
+          else if (n.nodeType === 1) collect(n, nodes);
+        }
+      }
+    }
+    if (nodes.length) schedule(nodes);
+  });
+
+  // 初始恢复：直接走 setEnabled 会让 enabled 相同而提前返回，所以单独处理
+  if (enabled) {
+    document.body.classList.add('elder-mode');
+    document.body.dataset.fontSize = fontKey;
+    var initial = [];
+    collect(document.body, initial);
+    withObserverOff(function () {
+      initial.forEach(function (n) { STD.set(n, n.nodeValue); });
+      initial.forEach(writeElder);
+    });
+    applyBehavior(true);
+  }
+  syncPanel();
+
+  /* ---- 键盘可达性补全（WCAG 2.1.1，对所有模式生效） ----
+     原项目有几个 div + onclick 的操作区，键盘与读屏无法使用。 */
+  var CLICKABLE = [
+    ['fab-circle', '开始或停止听声音'],
+    ['start-test-circle', ''],
+    ['test-tap-area', '']
+  ];
+  CLICKABLE.forEach(function (pair) {
+    var el = document.getElementById(pair[0]);
+    if (!el) return;
+    if (el.nodeName === 'DIV') {
+      if (el.getAttribute('role') == null) el.setAttribute('role', 'button');
+      if (el.getAttribute('tabindex') == null) el.setAttribute('tabindex', '0');
+      if (pair[1]) el.setAttribute('aria-label', pair[1]);
+      el.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ' ' || e.key === 'Spacebar') {
+          e.preventDefault();
+          el.click();
+        }
+      });
+    }
+  });
+
+  // 供外部集成 / 自动化回归使用
+  window.ClearHearElder = {
+    enable: function () { setEnabled(true); },
+    disable: function () { setEnabled(false); },
+    toggle: function () { setEnabled(!enabled); },
+    isEnabled: function () { return enabled; }
+  };
+})();
 </script>
 </body>
 </html>
